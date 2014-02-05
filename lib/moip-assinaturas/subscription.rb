@@ -78,6 +78,17 @@ module Moip::Assinaturas
         end
       end
 
+      def cancel(code)
+        response = Moip::Assinaturas::Client.cancel_subscription(code)
+
+        case response.code
+        when 201
+          return { success: true }
+        else
+          raise(WebServerResponseError, "Ocorreu um erro no retorno do webservice")
+        end
+      end
+
     end
 
   end

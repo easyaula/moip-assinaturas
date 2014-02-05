@@ -79,5 +79,10 @@ describe Moip::Assinaturas::Subscription do
     request[:success].should be_true
   end
 
+  it "should cancel a subscription" do
+    request = Moip::Assinaturas::Subscription.cancel('assinatura1')
+    request[:success].should be_true
+  end
+
 
 end
