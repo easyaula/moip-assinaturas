@@ -37,6 +37,15 @@ module Moip::Assinaturas
         peform_action!(:post, "/customers?new_vault=#{new_vault}", { body: customer.to_json, headers: { 'Content-Type' => 'application/json' } })
       end
 
+      def update_customer(code, customer)
+        verify_auth
+        send(:put, "/customers/#{code}", { body: customer.to_json, headers: { 'Content-Type' => 'application/json' } })
+      end
+
+      def update_billing_info(code, billing_info)
+        peform_action!(:put, "/customers/#{code}/billing_infos", { body: billing_info.to_json, headers: { 'Content-Type' => 'application/json' } })
+      end
+
       def list_customers
         peform_action!(:get, "/customers", { headers: { 'Content-Type' => 'application/json' } })
       end
@@ -50,7 +59,7 @@ module Moip::Assinaturas
       end
 
       def list_subscriptions
-        peform_action!(:get, "/subscriptions", { headers: { 'Content-Type' => 'application/json' } })        
+        peform_action!(:get, "/subscriptions", { headers: { 'Content-Type' => 'application/json' } })
       end
 
       def details_subscription(code)
@@ -58,11 +67,16 @@ module Moip::Assinaturas
       end
 
       def suspend_subscription(code)
-        peform_action!(:put, "/subscriptions/#{code}/suspend", { headers: { 'Content-Type' => 'application/json' } }) 
+        peform_action!(:put, "/subscriptions/#{code}/suspend", { headers: { 'Content-Type' => 'application/json' } })
       end
 
       def activate_subscription(code)
-        peform_action!(:put, "/subscriptions/#{code}/activate", { headers: { 'Content-Type' => 'application/json' } }) 
+        peform_action!(:put, "/subscriptions/#{code}/activate", { headers: { 'Content-Type' => 'application/json' } })
+      end
+
+      def update_subscription(code, subscription)
+        verify_auth
+        send(:put, "/subscriptions/#{code}", { body: subscription.to_json, headers: { 'Content-Type' => 'application/json' } })
       end
 
       def list_invoices(subscription_code)
@@ -70,29 +84,31 @@ module Moip::Assinaturas
       end
 
       def details_invoice(id)
-        peform_action!(:get, "/invoices/#{id}", { headers: { 'Content-Type' => 'application/json' } })        
+        peform_action!(:get, "/invoices/#{id}", { headers: { 'Content-Type' => 'application/json' } })
       end
 
       def list_payments(invoice_id)
-        peform_action!(:get, "/invoices/#{invoice_id}/payments", { headers: { 'Content-Type' => 'application/json' } })        
+        peform_action!(:get, "/invoices/#{invoice_id}/payments", { headers: { 'Content-Type' => 'application/json' } })
       end
 
       def details_payment(id)
-        peform_action!(:get, "/payments/#{id}", { headers: { 'Content-Type' => 'application/json' } })        
+        peform_action!(:get, "/payments/#{id}", { headers: { 'Content-Type' => 'application/json' } })
       end
 
       private
+        def verify_auth
+          if (Moip::Assinaturas.token.blank? or Moip::Assinaturas.key.blank?)
+            raise(MissingTokenError, "Informe o token e a key para realizar a autenticação no webservice")
+          end
+        end
 
         def peform_action!(action_name, url, options = {})
-          if (Moip::Assinaturas.token.blank? or Moip::Assinaturas.key.blank?)
-            raise(MissingTokenError, "Informe o token e a key para realizar a autenticação no webservice") 
-          end
+          verify_auth
 
           response = self.send(action_name, url, options)
           raise(WebServerResponseError, "Ocorreu um erro ao chamar o webservice") if response.nil?
           response
         end
-
     end
   end
 
