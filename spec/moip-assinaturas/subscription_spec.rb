@@ -45,6 +45,13 @@ describe Moip::Assinaturas::Subscription do
 
     FakeWeb.register_uri(
       :put,
+      "https://TOKEN:KEY@api.moip.com.br/assinaturas/v1/subscriptions/assinatura1/cancel",
+      body: 'CREATED',
+      status: [201, 'OK']
+    )
+
+    FakeWeb.register_uri(
+      :put,
       "https://TOKEN:KEY@api.moip.com.br/assinaturas/v1/subscriptions/assinatura1/suspend",
       body: 'CREATED',
       status: [201, 'OK']
@@ -82,6 +89,11 @@ describe Moip::Assinaturas::Subscription do
 
   it "should reactive a subscription" do
     request = Moip::Assinaturas::Subscription.activate('assinatura1')
+    request[:success].should be_true
+  end
+
+  it "should cancel a subscription" do
+    request = Moip::Assinaturas::Subscription.cancel('assinatura1')
     request[:success].should be_true
   end
 
